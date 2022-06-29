@@ -1,0 +1,79 @@
+- hosts: all
+  remote_user: zagkanas
+  gather_facts: true
+  become: true
+  become_user: root
+  tasks:
+  - name: Install Python build dependencies
+    apt:
+        pkg: "{{ item }}"
+        state: present
+    with_items:
+        - gcc
+        - patch
+        - make
+        - build-essential
+        - libssl-dev
+        - zlib1g-dev
+        - libbz2-dev
+        - libreadline-dev
+        - libsqlite3-dev
+        - wget
+        - curl
+        - llvm
+        - libncursesw5-dev
+        - xz-utils
+        - tk-dev
+        - libxml2-dev
+        - libxmlsec1-dev
+        - libffi-dev
+        - liblzma-dev
+
+  - name: Ensure Github is a known host
+    lineinfile:
+      dest: "/home/vagrant/.ssh/known_hosts"
+      create: yes
+      state: present
+      line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+      regexp: "^github\\.com"
+
+  - name: Install pyenv from Github
+    git: repo=https://github.com/pyenv/pyenv.git dest=/home/vagrant/.pyenv
+    ignore_errors: true
+    become_user: vagrant
+
+  - name: Configure the right paths 
+    lineinfile: 
+      dest: "/home/vagrant/.bashrc" 
+      state: present 
+      create: yes 
+      line: "{{ item }}" 
+    with_items: 
+      - 'export PYENV_ROOT="/home/vagrant/.pyenv"' 
+      - 'export PATH="$PYENV_ROOT/bin:$PATH"' 
+      - 'eval "$(pyenv init - --no-rehash )"' 
+      - 'eval "$(pyenv virtualenv-init -)"' 
+
+  - name: Ensure .pyenv permissions are set properly 
+    file: path=/home/vagrant/.pyenv 
+     recurse=yes 
+     owner=vagrant
+     group=vagrant
+     state=directory
+
+  - name: Ensure .bashrc permissions are set properly 
+    file: path=/home/vagrant/.bashrc 
+     owner=vagrant
+     group=vagrant
+
+  - name: Install python 3.10.0
+    shell: /home/vagrant/.pyenv/libexec/pyenv install 3.10.0
+    become: true
+    become_user: vagrant
+    tags:
+     - python3
+
+  - name: Make python 3.10.1 global
+    shell: /home/vagrant/.pyenv/libexec/pyenv global 3.10.0
+    become: true
+    become_user: vagrant
