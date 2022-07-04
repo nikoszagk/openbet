@@ -1,9 +1,12 @@
 - hosts: all
-  remote_user: zagkanas
   gather_facts: true
   become: true
   become_user: root
   tasks:
+  - name: Install python-apt on vagrant user
+    shell: sudo apt-get install python-apt -y
+    become_user: vagrant
+
   - name: Install Python build dependencies
     apt:
         pkg: "{{ item }}"
@@ -28,7 +31,7 @@
         - libxmlsec1-dev
         - libffi-dev
         - liblzma-dev
-
+    
   - name: Ensure Github is a known host
     lineinfile:
       dest: "/home/vagrant/.ssh/known_hosts"
@@ -65,21 +68,29 @@
      owner=vagrant
      group=vagrant
 
+  - name: Check which python version is installed
+    shell: "python3 --version"
+    register: python_output
+    ignore_errors: true
+
   - name: Install python 3.10.0
     shell: /home/vagrant/.pyenv/libexec/pyenv install 3.10.0
     become: true
     become_user: vagrant
     tags:
      - python3
+    when: python_output.stdout != "Python 3.10.0"
 
   - name: Make python 3.10.1 global
     shell: /home/vagrant/.pyenv/libexec/pyenv global 3.10.0
     become: true
     become_user: vagrant
+    when: python_output.stdout != "Python 3.10.0"
 
   - name: Replace symlink for the python version
     shell: ln -sf /home/vagrant/.pyenv/shims/python3 /usr/bin/python3
     become: true
+    when: python_output.stdout != "Python 3.10.0"
 
   - name: Create a directory
     file:
