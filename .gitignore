@@ -1,2 +1,2 @@
-.vagrant
+ansible/.vagrant/*
 .DS_Store
