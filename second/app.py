@@ -13,7 +13,7 @@ app = Flask(__name__)
 @app.route('/')
 def myChart(radius=1):
     fig = Figure()
-    
+
     axis = fig.add_subplot(1, 1, 1)
     theta = np.linspace(0, 2*np.pi, 1000)
     xs = radius * np.cos(theta)
@@ -25,4 +25,4 @@ def myChart(radius=1):
     return Response(output.getvalue(), mimetype='image/png')
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port="8181")
+    app.run(debug=True, host="0.0.0.0", port=8000)
