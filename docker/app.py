@@ -15,9 +15,9 @@ def myChart():
     fig = Figure()
 
     axis = fig.add_subplot(1, 1, 1)
-    xs = np.linspace(0, 100, 1000)
+    xs = np.linspace(-50, 50, 1000)
     ys = np.sin(xs)
-    axis.scatter(xs,ys, s=3)
+    axis.scatter(xs,ys, s=1, color = 'blue')
     output = io.BytesIO()
 
     FigureCanvas(fig).print_png(output)
