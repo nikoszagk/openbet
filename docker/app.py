@@ -5,20 +5,19 @@ import io
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = [18.50, 10.50]
+plt.rcParams["figure.figsize"] = [12.50, 6.50]
 plt.rcParams["figure.autolayout"] = True
 
 app = Flask(__name__)
 
 @app.route('/')
-def myChart(radius=1):
+def myChart():
     fig = Figure()
 
     axis = fig.add_subplot(1, 1, 1)
-    theta = np.linspace(0, 2*np.pi, 1000)
-    xs = radius * np.cos(theta)
-    ys = radius * np.sin(theta)
-    axis.scatter(xs,ys, s=0.3)
+    xs = np.linspace(0, 100, 1000)
+    ys = np.sin(xs)
+    axis.scatter(xs,ys, s=3)
     output = io.BytesIO()
 
     FigureCanvas(fig).print_png(output)
